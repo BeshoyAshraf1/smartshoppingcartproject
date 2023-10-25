@@ -1,48 +1,37 @@
-"""myproject URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
-from django.urls import path , include
-
-####
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-  
-###This ia a template for documentation of apis  
-  
-schema_view = get_schema_view(
-   openapi.Info(
-      title="Dummy API",
-      default_version='v1',
-      description="Dummy description",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="contact@dummy.local"),
-      license=openapi.License(name="BSD License"),
-   ),
-   public=True,
-   permission_classes=(permissions.AllowAny,),
-)
-
-
+from django.urls import path
+from . import views
+from . import api
+from .views import error404
+#from django.urls import handler404
+from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('',include('pages.urls')),
-    ##### documentation
-    path('docs/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    
-]
+    path('welcome',views.welcome,name='welcome'),
+    path('scan',views.scan,name='scan'),
+    path('befscan',views.befscan,name='befscan'),
+    path('home',views.home,name='home'),
+    path('check_rfid/', views.check_rfid, name='check_rfid'),
+    path('check_weight/', views.check_weight, name='check_weight'),
+    path('search',views.search,name='search'),
+    path('alert',views.alert,name='alert'),
+    path('error404',views.error404,name='error404'),
+    path('data/<int:pserialno>/', views.data, name='data'),
+    path('success',views.success,name='success'),
+    path('addproduct',views.addproduct,name='addproduct'), 
+    path('removeproduct',views.removeproduct,name='removeproduct'), 
+
+    #api
+    ### signup send fname, lname , email , password , credit card no , cvc , exp date.
+    ### response 201 and return the results that stored and add the id of the user in DB
+    ### response 400 bad request and "error": "Invalid email or password"
+    path('customers/create/', api.CreateCustomerView.as_view(), name='customer_create'), 
+    ##### login send the email and password
+    ##### response 200 and login successfully
+    ##### response 400 bad request and "This field may not be blank."
+    path('login/', api.login, name='login'), 
+    ##### send the email and password
+    ##### response 200 and retrieve all orders and order items
+    ##### response 404 and "detail": "Not found."
+    path('orders/', api.order_details),  #### get all orders
+]  
 
